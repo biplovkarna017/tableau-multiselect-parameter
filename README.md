@@ -4,7 +4,7 @@ The Tableau Multi-Select Parameter extension enhances your data analysis capabil
 
 ## How to Use:
 
-1. **Download the Extension**: Obtain the extension from the following URL: [MultiSelectParameter.trex](https://biplovkarna017.github.io/MultiSelectParameter.trex).
+1. **Download the Extension**: Obtain the extension from the following URL: [MultiSelectParameter.trex]([https://biplovkarna017.github.io/](https://biplovkarna017.github.io/tableau-multiselect-parameter/MultiSelectParameter.trex).
 
 2. **Open Your Tableau Dashboard**: Navigate to your desired dashboard in Tableau.
 
