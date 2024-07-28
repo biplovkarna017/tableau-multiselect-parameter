@@ -1,17 +1,87 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MultiSelect Parameter</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau Multi-Select Parameter Extension</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f5f5, #d9e1e8);
+            color: #333;
+        }
+        .container {
+            max-width: 80%;
+            margin: 40px auto;
+            padding: 30px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            color: #fff;
+            background-color: #295774;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #295774;
+            margin-top: 30px;
+        }
+        p {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        ol, ul {
+            margin-left: 20px;
+            font-size: 18px;
+        }
+        a {
+            color: #0690e6;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tableau Multi-Select Parameter Extension</h1>
+        <p>The Tableau Multi-Select Parameter extension enhances your data analysis capabilities by concatenating selected values from a filter, delimited by '|', and updating them into a parameter. This parameter can then be used in custom SQL queries or calculated fields, providing greater flexibility in data manipulation and visualization.</p>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <h2>How to Use:</h2>
+        <ol>
+            <li><strong>Download the Extension</strong>: Obtain the extension from the following URL: 
+                <a href="https://biplovkarna017.github.io/tableau-multiselect-parameter/MultiSelectParameter.trex">MultiSelectParameter.trex</a>
+            </li>
+            <li><strong>Open Your Tableau Dashboard</strong>: Navigate to your desired dashboard in Tableau.</li>
+            <li><strong>Add the Extension</strong>:
+                <ul>
+                    <li>Drag the "Extension" object from the bottom left section of the Tableau interface to your dashboard.</li>
+                    <li>Click "Access Local Extensions".</li>
+                    <li>Select the <code>MultiSelectParameter.trex</code> file from your download directory.</li>
+                </ul>
+            </li>
+            <li><strong>Configure the Extension</strong>:
+                <ul>
+                    <li>The Configure Extension dialog box will appear.</li>
+                    <li>From the "Select Filter" dropdown, choose the filter you want to use as a parameter.</li>
+                    <li>From the "Select Parameter" dropdown, select the parameter where the concatenated filter values will be stored.</li>
+                    <li>Click "Save Settings".</li>
+                </ul>
+            </li>
+        </ol>
 
-    <script src="https://biplovkarna017.github.io/tableau-multiselect-parameter/tableau.extensions.1.latest.min.js"></script>
+        <p>Once configured, any selections made on the filter will be concatenated and stored in the selected parameter. You can then use this parameter in your custom SQL queries (e.g., <code>COLUMN_NAME REGEXP &lt;&lt;ParameterName&gt;&gt;</code>) or calculated fields (e.g., <code>REGEXP_MATCH([COLUMN_NAME], [ParameterName])</code>).</p>
 
-    <!-- Our extension's code -->
-    <script src="https://biplovkarna017.github.io/tableau-multiselect-parameter/mainLogic.js"></script>
-  </head>
+        <p>This extension streamlines the process of dynamic parameter creation and enables more complex and customizable data queries within Tableau.</p>
+    </div>
+</body>
 </html>
