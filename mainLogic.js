@@ -8,7 +8,6 @@
   $(document).ready(function () {
     tableau.extensions.initializeAsync({ configure: configure }).then(() => {
         if (tableau.extensions.settings.get('worksheetName')) {
-            logDebug("Hello"+filterName);
             worksheetName = tableau.extensions.settings.get('worksheetName');
             filterName = tableau.extensions.settings.get('filterName');
             parameterName = tableau.extensions.settings.get('parameterName');
