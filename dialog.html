@@ -1,176 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MultiSelect Parameter</title>
-    <style>
-        body {
-          font-family: Arial, sans-serif;
-          background: linear-gradient(135deg, #f5f5f5, #d9e1e8);
-          color: #333;
-          margin: 0;
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-      }
-
-      .ribbon {
-        position: relative;
-        display: inline-block;
-        padding: 10px 20px;
-        width: 100%;
-        text-align: center;
-        font-size: 24px;
-        color: #fff;
-        background-color: #295774;
-        border-radius: 3px;
-      }
-
-      form {
-          background-color: #fff;
-          padding: 20px;
-          border-radius: 10px;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-          width: 300px;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-      }
-
-      label {
-          font-size: 14px;
-          margin: 10px 0 5px;
-      }
-
-      select, input[type="button"] {
-          width: 100%;
-          padding: 10px;
-          margin: 5px 0 20px;
-          border-radius: 5px;
-          border: 1px solid #ccc;
-      }
-
-      input[type="button"] {
-          background-color: #3d82ae;
-          color: white;
-          border: none;
-          cursor: pointer;
-      }
-
-      input[type="button"]:hover {
-          background-color: #438dbc;
-      }
-
-    </style>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-
-    <script src="./tableau.extensions.1.latest.min.js"></script>
-
-    <!-- Our extension's code -->
-    <script src="./mainLogic.js"></script>
-    <script>
-        let filterWorksheetMap = new Map(); 
-
-        function initialize() {
-
-            let dashboard = tableau.extensions.dashboardContent.dashboard;
-
-            // Retrieve default values from settings
-            let defaultFilter = tableau.extensions.settings.get('filterName');
-            let defaultParameter = tableau.extensions.settings.get('parameterName');
-
-
-            // Populate parameter dropdown
-            dashboard.getParametersAsync().then(parameters => {
-              let parameterSelect = document.getElementById('parameterSelect');
-              parameters.forEach(param => {
-                let option = document.createElement('option');
-                option.value = param.name;
-                option.text = param.name;
-                parameterSelect.appendChild(option);
-              });
-
-              // Set default parameter
-            if (defaultParameter) {
-              parameterSelect.value = defaultParameter;
-            }
-
-            });
-         
-              // Get the list of filters
-            let filtersPromises = [];
-            dashboard.worksheets.forEach(sheet => {
-              filtersPromises.push(sheet.getFiltersAsync().then(filters => {
-                filters.forEach(filter => {
-                  filterWorksheetMap.set(filter.fieldName, sheet.name); // Store filter and worksheet name
-                });
-                return filters;
-              }));
-            });
-
-            Promise.all(filtersPromises).then(filtersArray => {
-              let filterSelect = document.getElementById('filterSelect');
-
-              filtersArray.forEach(filters => {
-
-                filters.forEach(filter => {
-                  let option = document.createElement('option');
-                  option.value = filter.fieldName;
-                  option.text = filter.fieldName;
-                  filterSelect.appendChild(option);
-                });
-              });
-
-              // Set default filter
-              if (defaultFilter) {
-                filterSelect.value = defaultFilter;
-              }
-            });
-        }
-
-        // Display selected values
-        function saveSettings() {
-          let filterSelect = document.getElementById('filterSelect');
-          let parameterSelect = document.getElementById('parameterSelect');
-
-          let selectedFilter = filterSelect.options[filterSelect.selectedIndex].text;
-          let selectedParameter = parameterSelect.options[parameterSelect.selectedIndex].text;
-          let selectedWorksheet = filterWorksheetMap.get(selectedFilter);
-
-          tableau.extensions.settings.set('filterName', selectedFilter);
-          tableau.extensions.settings.set('parameterName', selectedParameter);
-          tableau.extensions.settings.set('worksheetName', selectedWorksheet);
-
-          tableau.extensions.settings.saveAsync().then(() => {
-              tableau.extensions.ui.closeDialog('Settings saved');
-          });
-        }
-
-        tableau.extensions.initializeDialogAsync().then(() => {
-          initialize();
-        });
-
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Extension</title>
+    <link rel="stylesheet" href="./Configure Styles.css">
 </head>
 <body>
-    <h3 class = "ribbon">Configure Extension</h3>
-    <br>
-    <form id="selectionForm">
-      <label for="filterSelect">Select Filter:</label>
-      <select id="filterSelect">
-        <option value="">--Select a Filter--</option>
-      </select>
+    <div id="dropdown-container">
+      <h3 class = "ribbon">Configure Extension</h3>
       <br>
-      <label for="parameterSelect">Select Parameter:</label>
-      <select id="parameterSelect">
-        <option value="">--Select a Parameter--</option>
-      </select>
-      <br><br>
-      <input type="button" value="Save Settings" onclick="saveSettings()">
-    </form>
+      <button id="add-dropdown" disabled>Add Filter</button>
+      <input id = "save-settings" type="button" value="Save Settings">
+    </div>
+    <script src="./tableau.extensions.1.latest.min.js"></script>
+    <script src="./Configure.js"></script>
 </body>
 </html>
