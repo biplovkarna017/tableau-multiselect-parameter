@@ -3,39 +3,20 @@
     let configureJSON = "",
         configArray = [],
         worksheetNames = [],
-        cachedParameters = [],
-        cachedFilters = {},  // To store all cached filters during configuration
-        debounceTimeout;
+        cachedParameters = [];
 
     function configure() {
         tableau.extensions.ui.displayDialogAsync("./Configure.html", "", {
             height: 500,
             width: 1e3
         }).then(() => {
-            configureJSON = tableau.extensions.settings.get("config");
-            configArray = JSON.parse(configureJSON);
+            configArray = JSON.parse(configureJSON = tableau.extensions.settings.get("config"));
             worksheetNames = [...new Set(configArray.map(config => config.sheet))];
-            cacheAllFilters();  // Cache all filters here before setting up listeners
-        });
-    }
-
-    // Cache all filters for the relevant worksheets
-    function cacheAllFilters() {
-        let worksheets = tableau.extensions.dashboardContent.dashboard.worksheets;
-        let filterPromises = worksheets.map(worksheet => {
-            if (worksheetNames.includes(worksheet.name)) {
-                return worksheet.getFiltersAsync().then(filters => {
-                    filters.forEach(filter => {
-                        let cacheKey = `${worksheet.name}-${filter.fieldName}`;
-                        cachedFilters[cacheKey] = filter;  // Cache each filter by worksheet and fieldName
-                    });
-                });
-            }
-        });
-        
-        // Once all filters are cached, set up the listeners
-        Promise.all(filterPromises).then(() => {
-            addFilterChangeListeners();
+            tableau.extensions.dashboardContent.dashboard.getParametersAsync().then(parameters => {
+                cachedParameters = parameters;
+            }).then(()=>{
+                addFilterChangeListeners();
+            });
         });
     }
 
@@ -43,19 +24,12 @@
         tableau.extensions.dashboardContent.dashboard.worksheets.forEach(worksheet => {
             if (worksheetNames.includes(worksheet.name)) {
                 worksheet.addEventListener(tableau.TableauEventType.FilterChanged, filterEvent => {
-                    let cacheKey = `${worksheet.name}-${filterEvent.fieldName}`;
-                    
-                    if (cachedFilters[cacheKey]) {
-                        // Use the cached filter if it exists
-                        updateFilter(cachedFilters[cacheKey], configArray.find(config => config.filter === filterEvent.fieldName && config.sheet === worksheet.name));
-                    } 
-                    // else {
-                    //     // Fetch and cache the filter if not cached yet
-                    //     filterEvent.getFilterAsync().then(triggerFilter => {
-                    //         cachedFilters[cacheKey] = triggerFilter; // Cache the filter
-                    //         updateFilter(triggerFilter, configArray.find(config => config.filter === triggerFilter.fieldName && config.sheet === worksheet.name));
-                    //     });
-                    // }
+                    filterEvent.getFilterAsync().then(triggerFilter => {
+                        let filteredConfig = configArray.find(config => config.filter === triggerFilter.fieldName && config.sheet === worksheet.name);
+                        if (filteredConfig) {
+                            updateFilter(triggerFilter, filteredConfig);
+                        }
+                    });
                 });
             }
         });
@@ -103,7 +77,11 @@
             if (configureJSON) {
                 configArray = JSON.parse(configureJSON);
                 worksheetNames = [...new Set(configArray.map(e => e.sheet))];
-                cacheAllFilters();  // Cache all filters during initialization if already configured
+                tableau.extensions.dashboardContent.dashboard.getParametersAsync().then(parameters => {
+                cachedParameters = parameters;
+            }).then(()=>{
+                addFilterChangeListeners();
+            });
             } else {
                 configure();
             }
