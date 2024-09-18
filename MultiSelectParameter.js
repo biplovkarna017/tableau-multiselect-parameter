@@ -49,17 +49,14 @@
     }
 
     function updateParameter(paramName, value) {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(() => {
-            if (cachedParameters.length === 0) {
-                tableau.extensions.dashboardContent.dashboard.getParametersAsync().then(parameters => {
-                    cachedParameters = parameters;
-                    changeParameterValue(paramName, value);
-                });
-            } else {
+        if (cachedParameters.length === 0) {
+            tableau.extensions.dashboardContent.dashboard.getParametersAsync().then(parameters => {
+                cachedParameters = parameters;
                 changeParameterValue(paramName, value);
-            }
-        }, 300); // 300ms debounce delay
+            });
+        } else {
+            changeParameterValue(paramName, value);
+        }
     }
 
     function changeParameterValue(paramName, value) {
