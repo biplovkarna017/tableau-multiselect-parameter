@@ -4,17 +4,31 @@
         configArray = [],
         worksheetNames = [],
         cachedParameters = [],
-        cachedFilters = {},
-        debounceTimeout;
+        cachedFilters = {};
 
     function configure() {
         tableau.extensions.ui.displayDialogAsync("./Configure.html", "", {
             height: 500,
             width: 1e3
         }).then(() => {
-            configArray = JSON.parse(configureJSON = tableau.extensions.settings.get("config"));
+            configureJSON = tableau.extensions.settings.get("config");
+            configArray = JSON.parse(configureJSON);
             worksheetNames = [...new Set(configArray.map(config => config.sheet))];
+            cacheAllFilters();  // Cache all filters here before setting up listeners
             addFilterChangeListeners();
+        });
+    }
+
+    function cacheAllFilters() {
+        tableau.extensions.dashboardContent.dashboard.worksheets.forEach(worksheet => {
+            if (worksheetNames.includes(worksheet.name)) {
+                worksheet.getFiltersAsync().then(filters => {
+                    filters.forEach(filter => {
+                        let cacheKey = `${worksheet.name}-${filter.fieldName}`;
+                        cachedFilters[cacheKey] = filter;  // Cache each filter by worksheet and fieldName
+                    });
+                });
+            }
         });
     }
 
@@ -23,16 +37,10 @@
             if (worksheetNames.includes(worksheet.name)) {
                 worksheet.addEventListener(tableau.TableauEventType.FilterChanged, filterEvent => {
                     let cacheKey = `${worksheet.name}-${filterEvent.fieldName}`;
-                    
-                    if (cachedFilters[cacheKey]) {
-                        // Use the cached filter if it exists
-                        updateFilter(cachedFilters[cacheKey], configArray.find(config => config.filter === filterEvent.fieldName && config.sheet === worksheet.name));
-                    } else {
-                        // Fetch and cache the filter if not cached yet
-                        filterEvent.getFilterAsync().then(triggerFilter => {
-                            cachedFilters[cacheKey] = triggerFilter; // Cache the filter
-                            updateFilter(triggerFilter, configArray.find(config => config.filter === triggerFilter.fieldName && config.sheet === worksheet.name));
-                        });
+                    let cachedFilter = cachedFilters[cacheKey];
+
+                    if (cachedFilter) {
+                        updateFilter(cachedFilter, configArray.find(config => config.filter === filterEvent.fieldName && config.sheet === worksheet.name));
                     }
                 });
             }
@@ -81,6 +89,7 @@
             if (configureJSON) {
                 configArray = JSON.parse(configureJSON);
                 worksheetNames = [...new Set(configArray.map(e => e.sheet))];
+                cacheAllFilters();  // Cache all filters during initialization if already configured
                 addFilterChangeListeners();
             } else {
                 configure();
