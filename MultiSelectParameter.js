@@ -44,17 +44,18 @@
             if (worksheetNames.includes(worksheet.name)) {
                 worksheet.addEventListener(tableau.TableauEventType.FilterChanged, filterEvent => {
                     let cacheKey = `${worksheet.name}-${filterEvent.fieldName}`;
-                    console.log(cachedFilters[cacheKey],cacheKey);
+                    
                     if (cachedFilters[cacheKey]) {
                         // Use the cached filter if it exists
                         updateFilter(cachedFilters[cacheKey], configArray.find(config => config.filter === filterEvent.fieldName && config.sheet === worksheet.name));
-                    } else {
-                        // Fetch and cache the filter if not cached yet
-                        filterEvent.getFilterAsync().then(triggerFilter => {
-                            cachedFilters[cacheKey] = triggerFilter; // Cache the filter
-                            updateFilter(triggerFilter, configArray.find(config => config.filter === triggerFilter.fieldName && config.sheet === worksheet.name));
-                        });
-                    }
+                    } 
+                    // else {
+                    //     // Fetch and cache the filter if not cached yet
+                    //     filterEvent.getFilterAsync().then(triggerFilter => {
+                    //         cachedFilters[cacheKey] = triggerFilter; // Cache the filter
+                    //         updateFilter(triggerFilter, configArray.find(config => config.filter === triggerFilter.fieldName && config.sheet === worksheet.name));
+                    //     });
+                    // }
                 });
             }
         });
