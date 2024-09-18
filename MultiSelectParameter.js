@@ -4,6 +4,7 @@
         configArray = [],
         worksheetNames = [],
         cachedParameters = [],
+        cachedFilters = {},
         debounceTimeout;
 
     function configure() {
@@ -21,12 +22,18 @@
         tableau.extensions.dashboardContent.dashboard.worksheets.forEach(worksheet => {
             if (worksheetNames.includes(worksheet.name)) {
                 worksheet.addEventListener(tableau.TableauEventType.FilterChanged, filterEvent => {
-                    filterEvent.getFilterAsync().then(triggerFilter => {
-                        let filteredConfig = configArray.find(config => config.filter === triggerFilter.fieldName && config.sheet === worksheet.name);
-                        if (filteredConfig) {
-                            updateFilter(triggerFilter, filteredConfig);
-                        }
-                    });
+                    let cacheKey = `${worksheet.name}-${filterEvent.fieldName}`;
+                    
+                    if (cachedFilters[cacheKey]) {
+                        // Use the cached filter if it exists
+                        updateFilter(cachedFilters[cacheKey], configArray.find(config => config.filter === filterEvent.fieldName && config.sheet === worksheet.name));
+                    } else {
+                        // Fetch and cache the filter if not cached yet
+                        filterEvent.getFilterAsync().then(triggerFilter => {
+                            cachedFilters[cacheKey] = triggerFilter; // Cache the filter
+                            updateFilter(triggerFilter, configArray.find(config => config.filter === triggerFilter.fieldName && config.sheet === worksheet.name));
+                        });
+                    }
                 });
             }
         });
